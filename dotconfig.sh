@@ -8,8 +8,8 @@ fi
 # Create .config and put the dotfiles there
 if [ ! ~/.config ]; then
 	mkdir ~/.config
-	cp -r ~/dot/* ~/.config/
 fi
+cp -r ~/dot/{nvim,tmux} ~/.config/
 
 
 
