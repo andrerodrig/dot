@@ -1,0 +1,56 @@
+#!/usr/bin/env sh
+
+FULL=▓
+EMPTY=░
+EOL=▒
+C0="colour0"
+C1="colour9"
+C2="colour10"
+C3="colour11"
+C4="colour12"
+C5="colour13"
+C6="colour14"
+C7="colour15"
+
+draw() {
+	perc=$1
+	SIZE=$2
+	inc=$((perc * SIZE / 100))
+	out=
+	v=0
+	while [ "$v" -le $((SIZE - 1)) ]; do
+		if [ "$v" -le "$inc" ]; then
+			out="$out#[default]#[fg=$C0]${EMPTY}"
+		else
+			out="$out#[default]#[fg=$C0]${FULL}"
+		fi
+		v=$((v + 1))
+	done
+	echo "$out"
+}
+
+
+cpu() {
+	CPU_USE=$(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}')
+	printf "%.0f" "$CPU_USE"
+}
+ram() {
+	free | awk '/Mem:/ {print int($3/$2 * 100.0)}'
+}
+
+vpn() {
+	pgrep openconnect >/dev/null 2>&1 && echo "#[fg=3]VPN"
+}
+clock() {
+	mtime=$(date +'%H:%M')
+	myear=$(date +'%m/%Y')
+	mday=$(date +'%d/')
+	echo "#[bg=$C0,fg=$C7] $mtime #[fg=$C5]$mday#[fg=$C7]$myear #[default]#[fg=$C0]$EOL"
+}
+
+front() {
+	echo "#[fg=$C0]░▒▓█"
+}
+CPU_INFO=$(cpu)
+RAM_INFO=$(ram)
+echo "$(front)$(bat) $(draw "$RAM_INFO" 5)$(temp) $(draw "$CPU_INFO" 7)$(vpn)$(clock)"
